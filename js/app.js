@@ -417,10 +417,83 @@
     </div>`;
   }
 
+  /* ---------- 룰렛 ---------- */
+  const rl = { theme: 'all', city: 'all', free: false, rot: 0, spinning: false, list: [], excluded: new Set() };
+  function rlPool() {
+    return SPOTS.filter(s => (rl.theme === 'all' || s.theme === rl.theme) && (rl.city === 'all' || s.city === rl.city) &&
+      (!rl.free || (s.theme === 'food' ? (s.pp || 0) <= 1500 : (!s.fee || s.fee.a <= 1000))) && !rl.excluded.has(s.id));
+  }
+  function rlDraw() {
+    const cv = $('#rlCanvas'), ctx = cv.getContext('2d'), W = cv.width, R = W / 2, L = rl.list, n = L.length;
+    ctx.clearRect(0, 0, W, W);
+    if (!n) { ctx.fillStyle = '#566370'; ctx.font = '700 28px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('조건에 맞는 곳이 없어요', R, R); return; }
+    const a = 2 * Math.PI / n;
+    L.forEach((s, i) => {
+      const a0 = rl.rot + i * a - Math.PI / 2, a1 = a0 + a;
+      ctx.beginPath(); ctx.moveTo(R, R); ctx.arc(R, R, R - 4, a0, a1); ctx.closePath();
+      ctx.fillStyle = THEMES[s.theme].color; ctx.globalAlpha = i % 2 ? .82 : 1; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+      if (n <= 40) {
+        ctx.save(); ctx.translate(R, R); ctx.rotate(a0 + a / 2); ctx.textAlign = 'right'; ctx.fillStyle = '#fff';
+        ctx.font = `700 ${n > 24 ? 17 : n > 12 ? 21 : 26}px Pretendard Variable, sans-serif`;
+        const t = s.name.length > 11 ? s.name.slice(0, 10) + '…' : s.name;
+        ctx.fillText(t, R - 24, 8); ctx.restore();
+      }
+    });
+  }
+  function rlRefresh() {
+    $$('#rlTheme .tab').forEach(b => b.setAttribute('aria-selected', b.dataset.v === rl.theme));
+    $$('#rlCity .tab').forEach(b => b.setAttribute('aria-selected', b.dataset.v === rl.city));
+    rl.list = rlPool();
+    $('#rlCount').textContent = `후보 ${rl.list.length}곳${rl.excluded.size ? ` (제외 ${rl.excluded.size}곳 · 조건을 바꾸면 초기화)` : ''}`;
+    $('#rlSpin').disabled = rl.list.length < 2;
+    rlDraw();
+  }
+  function rlInit() {
+    $('#rlTheme').innerHTML = '<button class="tab" data-v="all" style="--c:#101820"><span class="dot"></span>전체</button>' +
+      Object.keys(THEMES).map(k => `<button class="tab" data-v="${k}" style="--c:${THEMES[k].color}"><span class="dot"></span>${THEMES[k].name}</button>`).join('');
+    $('#rlCity').innerHTML = [['all','오사카·교토'],['osaka','오사카'],['kyoto','교토']].map(([v, n]) => `<button class="tab" data-v="${v}">${n}</button>`).join('');
+    const reset = () => { rl.excluded.clear(); $('#rlResult').innerHTML = '<p class="note">아직 돌리지 않았습니다.</p>'; rlRefresh(); };
+    $('#rlTheme').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b && !rl.spinning) { rl.theme = b.dataset.v; reset(); } });
+    $('#rlCity').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b && !rl.spinning) { rl.city = b.dataset.v; reset(); } });
+    $('#rlFree').addEventListener('change', e => { if (!rl.spinning) { rl.free = e.target.checked; reset(); } else e.target.checked = rl.free; });
+    $('#rlSpin').addEventListener('click', rlSpin);
+    $('#rlResult').addEventListener('click', e => {
+      const g = e.target.closest('[data-rgo]'), x = e.target.closest('[data-rex]');
+      if (g) { $('#dest').value = g.dataset.rgo; goRoute(true); $('#route').scrollIntoView({ behavior: 'smooth' }); }
+      if (x) { rl.excluded.add(x.dataset.rex); rlRefresh(); rlSpin(); }
+    });
+    rlRefresh();
+  }
+  function rlSpin() {
+    if (rl.spinning || rl.list.length < 2) return;
+    rl.spinning = true; $('#rlSpin').disabled = true;
+    const n = rl.list.length, a = 2 * Math.PI / n, pick = Math.floor(Math.random() * n);
+    // 포인터(맨 위)가 선택 칸의 중앙을 가리키도록: rot + (pick+.5)*a ≡ 0
+    const jitter = (Math.random() - .5) * a * .7;
+    const base = -((pick + .5) * a) + jitter, start = rl.rot, turns = 5 + Math.floor(Math.random() * 3);
+    let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
+    const dur = reduce ? 1 : 4200, t0 = performance.now();
+    const step = now => {
+      const f = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - f, 4);
+      rl.rot = start + (target - start) * e; rlDraw();
+      if (f < 1) requestAnimationFrame(step); else { rl.rot = target % (2 * Math.PI); rlDone(rl.list[pick]); }
+    };
+    requestAnimationFrame(step);
+  }
+  function rlDone(s) {
+    rl.spinning = false; $('#rlSpin').disabled = rl.list.length < 2;
+    const T = THEMES[s.theme], p = nambaPlan[s.id];
+    $('#rlResult').style.borderLeftColor = T.color;
+    $('#rlResult').innerHTML = `<p class="note">${T.icon} ${T.name} · ${s.city === 'kyoto' ? '교토' : '오사카'} · ${esc(s.area)}</p><h3>${esc(s.name)}</h3>
+      <div class="spot-fee">${feeHtml(s)}</div><div class="chips">${chipsHtml(p)}</div><p><b>난바에서 약 ${p.minutes}분${p.fare ? ' · ' + num(p.fare) + '엔' : ''}</b></p><p class="note">${esc(s.desc)}</p>
+      <div class="rl-act"><button class="btn btn-primary" data-rgo="${s.id}" type="button">길찾기 ▶</button><button class="btn" data-rex="${s.id}" type="button">이곳 빼고 다시 돌리기</button></div>`;
+  }
+
   /* ---------- 시작 ---------- */
   bindFamily(); renderTabs(); renderSpots();
   fillSelects(); initMap(); bindPlayer();
-  renderDayTabs(); renderDay(); renderTours(); renderInfo();
+  renderDayTabs(); renderDay(); renderTours(); renderInfo(); rlInit();
   goRoute(false); // 첫 화면: 난바 → 오사카성 (자동재생 없음)
   anim.t = 0; anim.render(); anim.ui();
   // 지도 섹션이 화면에 들어오면 한 번만 재생

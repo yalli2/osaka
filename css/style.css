@@ -192,3 +192,18 @@ button,input,select{font:inherit;color:inherit}
   html{scroll-behavior:auto}
   .rail .rail-train{animation:none;left:0}
 }
+
+/* 룰렛 */
+.rl{display:grid;grid-template-columns:minmax(280px,480px) 1fr;gap:32px;align-items:start}
+.rl-stage{position:relative;width:100%;max-width:480px;aspect-ratio:1}
+.rl-stage canvas{width:100%;height:100%;border-radius:50%;border:6px solid var(--ink);background:#fff;display:block}
+.rl-pointer{position:absolute;top:-10px;left:50%;width:0;height:0;transform:translateX(-50%);border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid var(--red);z-index:2;filter:drop-shadow(0 2px 0 var(--ink))}
+.rl-hub{position:absolute;top:50%;left:50%;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;border:5px solid var(--ink);background:var(--red);color:#fff;font-weight:800;font-size:18px;cursor:pointer;z-index:2}
+.rl-hub:disabled{background:var(--mute);cursor:wait}
+.rl-side{display:flex;flex-direction:column;gap:14px}
+.rl-check{display:flex;gap:8px;align-items:center;font-size:15px}
+.rl-result{border:1.5px solid var(--ink);border-left-width:8px;border-radius:var(--r);background:#fff;padding:16px 18px;min-height:120px}
+.rl-result h3{font-size:24px;line-height:1.3}
+.rl-result .chips{margin:8px 0}
+.rl-result .rl-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+@media(max-width:760px){.rl{grid-template-columns:1fr}.rl-stage{margin:0 auto;max-width:360px}.rl-hub{width:76px;height:76px;font-size:16px}}

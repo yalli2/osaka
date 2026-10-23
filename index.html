@@ -15,6 +15,7 @@
   <a class="bar-brand" href="#top" aria-label="맨 위로"><span class="sign">M20</span><span>난바 출발</span></a>
   <nav class="bar-nav" aria-label="섹션">
     <a href="#explore">명소</a>
+    <a href="#roulette">룰렛</a>
     <a href="#route">길찾기</a>
     <a href="#days">일자별 코스</a>
     <a href="#tour">교토 투어</a>
@@ -60,6 +61,28 @@
     </div>
     <p class="count" id="count" aria-live="polite"></p>
     <div class="spots" id="spots"></div>
+  </section>
+
+  <!-- 룰렛 -->
+  <section class="sec" id="roulette">
+    <div class="sec-head">
+      <h2>갈 곳이 안 정해졌다면 룰렛</h2>
+      <p>조건을 고르고 돌리면 한 곳이 뽑힙니다. 마음에 안 들면 다시 돌리거나, 뽑힌 곳을 빼고 돌릴 수 있습니다.</p>
+    </div>
+    <div class="rl">
+      <div class="rl-stage">
+        <div class="rl-pointer" aria-hidden="true"></div>
+        <canvas id="rlCanvas" width="640" height="640" aria-label="룰렛 판"></canvas>
+        <button class="rl-hub" id="rlSpin" type="button">돌리기</button>
+      </div>
+      <div class="rl-side">
+        <div class="tabs" id="rlTheme" aria-label="룰렛 테마"></div>
+        <div class="tabs tabs-sm" id="rlCity" aria-label="룰렛 도시"></div>
+        <label class="rl-check"><input type="checkbox" id="rlFree"> 입장 무료·저렴한 곳만(성인 1,000엔 이하)</label>
+        <p class="note" id="rlCount"></p>
+        <div class="rl-result" id="rlResult" aria-live="polite"><p class="note">아직 돌리지 않았습니다.</p></div>
+      </div>
+    </div>
   </section>
 
   <!-- 길찾기 애니메이션 -->
