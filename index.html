@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오사카·교토 4박 5일 가족여행</title>
+<meta name="description" content="난바역 기준 오사카·교토 가족여행 가이드: 테마별 명소, 요금, 경로 애니메이션, 일자별 코스, 교토 일일투어 추천">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="bar" id="top">
+  <a class="bar-brand" href="#top" aria-label="맨 위로"><span class="sign">M20</span><span>난바 출발</span></a>
+  <nav class="bar-nav" aria-label="섹션">
+    <a href="#explore">명소</a>
+    <a href="#route">길찾기</a>
+    <a href="#days">일자별 코스</a>
+    <a href="#tour">교토 투어</a>
+    <a href="#info">정보</a>
+  </nav>
+  <div class="family" role="group" aria-label="가족 구성">
+    <label>성인 <input id="fa" type="number" min="1" max="9" value="2" inputmode="numeric"></label>
+    <label>어린이 <input id="fk" type="number" min="0" max="9" value="2" inputmode="numeric"></label>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <p class="hero-date">2026.10.29 – 11.2 · 4박 5일 · 가족 여행</p>
+      <h1>난바역에서<br>오사카와 교토로</h1>
+      <p class="hero-sub">『리얼 오사카』에서 고른 명소를 테마별로 정리하고, 요금·교통·일일투어를 웹에서 확인해 한 곳에 모았습니다. 목적지를 고르면 지금 위치에서 가는 길이 지도 위에서 움직입니다.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#route">길찾기 애니메이션 보기</a>
+        <a class="btn" href="#days">일자별 코스 보기</a>
+      </div>
+    </div>
+    <ol class="rail" aria-label="여행 일정">
+      <li class="rail-train" aria-hidden="true">🚇</li>
+      <li style="--c:#E5171F"><b>10/29 목</b><span>도착 · 미나미</span></li>
+      <li style="--c:#7B2B26"><b>10/30 금</b><span>교토 일일투어</span></li>
+      <li style="--c:#522886"><b>10/31 토</b><span>오사카성 · 우메다</span></li>
+      <li style="--c:#019A66"><b>11/1 일</b><span>베이 에어리어</span></li>
+      <li style="--c:#814721"><b>11/2 월</b><span>신세카이 · 출국</span></li>
+    </ol>
+  </section>
+
+  <!-- 테마별 명소 -->
+  <section class="sec" id="explore">
+    <div class="sec-head">
+      <h2>테마별 명소와 요금</h2>
+      <p>난바역에서 걸리는 시간과 대략의 교통비를 장소마다 계산해 두었습니다. 성인·어린이 인원은 오른쪽 위에서 바꿀 수 있습니다.</p>
+    </div>
+    <div class="filters">
+      <div class="tabs" id="themeTabs" role="tablist" aria-label="테마"></div>
+      <div class="tabs tabs-sm" id="cityTabs" aria-label="도시"></div>
+      <input id="q" class="search" type="search" placeholder="장소 이름 검색" aria-label="장소 검색">
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+    <div class="spots" id="spots"></div>
+  </section>
+
+  <!-- 길찾기 애니메이션 -->
+  <section class="sec sec-map" id="route">
+    <div class="sec-head">
+      <h2>길찾기 애니메이션</h2>
+      <p>출발지와 목적지를 고르면 환승 경로가 지도 위에서 재생됩니다. 간이 경로 계산이라 시간·요금은 대략치이며, 정확한 값은 Google 지도 버튼으로 확인하세요.</p>
+    </div>
+    <div class="route">
+      <div class="route-panel">
+        <label class="fld">출발지
+          <select id="origin"></select>
+        </label>
+        <label class="fld">목적지
+          <select id="dest"></select>
+        </label>
+        <div class="route-actions">
+          <button class="btn btn-primary" id="goBtn" type="button">경로 보기</button>
+          <a class="btn" id="gmapBtn" target="_blank" rel="noopener">Google 지도에서 열기</a>
+        </div>
+        <p class="note" id="originMsg" role="status"></p>
+        <div class="player" id="player" hidden>
+          <button class="icon-btn" id="playBtn" type="button" aria-label="재생/일시정지">⏸</button>
+          <button class="icon-btn" id="replayBtn" type="button" aria-label="처음부터">↺</button>
+          <input id="seek" type="range" min="0" max="1000" value="0" aria-label="진행 위치">
+          <select id="speed" aria-label="재생 속도"><option value="0.5">0.5배</option><option value="1" selected>1배</option><option value="2">2배</option></select>
+        </div>
+        <div class="summary" id="summary" aria-live="polite"></div>
+        <ol class="steps" id="steps"></ol>
+      </div>
+      <div class="map-wrap"><div id="map" role="application" aria-label="경로 지도"></div></div>
+    </div>
+  </section>
+
+  <!-- 일자별 코스 -->
+  <section class="sec" id="days">
+    <div class="sec-head">
+      <h2>일자별 추천 코스</h2>
+      <p>10/29, 10/31, 11/1, 11/2 네 날의 동선과 우천 대체 코스를 장소가 겹치지 않게 짰습니다. 시간표와 이동 구간은 난바역 출발 기준입니다. 10/30은 교토 일일투어 날입니다.</p>
+    </div>
+    <div class="tabs" id="dayTabs" role="tablist" aria-label="일자"></div>
+    <div id="dayPanel"></div>
+  </section>
+
+  <!-- 교토 투어 -->
+  <section class="sec" id="tour">
+    <div class="sec-head">
+      <h2>10/30 오사카 → 교토 일일투어</h2>
+      <p>웹에서 오사카 출발 교토 일일투어를 검색해 4인 가족에게 맞는 순서로 추렸습니다. 가격은 2026-10-23 조회 기준이며 날짜별로 달라질 수 있습니다.</p>
+    </div>
+    <div id="tourPanel"></div>
+  </section>
+
+  <!-- 정보 -->
+  <section class="sec" id="info">
+    <div class="sec-head"><h2>알아두면 좋은 것</h2></div>
+    <div id="infoPanel"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>자료: 『리얼 오사카 (교토·고베·나라)』 한빛라이프, 웹 조사 2026-10-23. 요금·운영 시간은 바뀔 수 있으니 방문 전 공식 안내를 확인하세요.</p>
+</footer>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/router.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
