@@ -496,14 +496,21 @@
     // 포인터(맨 위)가 선택 칸의 중앙을 가리키도록: rot + (pick+.5)*a ≡ 0
     const jitter = (Math.random() - .5) * a * .7;
     const base = -((pick + .5) * a) + jitter, start = rl.rot;
-    // 속도 곡선: 0~T1초는 최고 속도로 질주, 이후 T2초 동안 (1-u)^2 로 서서히 감속 → 합계 15초
-    const T1 = reduce ? .1 : 4, T2 = reduce ? .1 : 11;               // 4초 전속력 + 11초 감속 = 15초
-    const turns = reduce ? 3 : 24 + Math.floor(Math.random() * 4);  // 총 24~27바퀴 → 최고 약 2.7바퀴/초 (이전의 0.5배)
-    let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
-    const w0 = (target - start) / (T1 + T2 / 4);                    // 최고 각속도(rad/s)
-    const dist = t => t <= T1 ? w0 * t : w0 * T1 + w0 * T2 / 4 * (1 - Math.pow(1 - (t - T1) / T2, 4)); // 속도 ∝ (1-u)^3 : 끝에서 오래 기어감
-    const dur = (T1 + T2) * 1000;
-    const speedAt = t => t <= T1 ? w0 : w0 * Math.pow(1 - (t - T1) / T2, 3);
+    // 속도(rpm): 0초 200 → 5초 100 → 10초 20 → 15초 정지 (구간 안에서는 직선으로 변화)
+    const R2 = 2 * Math.PI / 60, TOT = reduce ? .2 : 15, K = reduce ? .2 / 15 : 1;
+    const d1 = (200 + 100) / 2 * R2 * 5, d2 = (100 + 20) / 2 * R2 * 5; // 앞 두 구간 이동각(rad)
+    // 마지막 구간(20rpm→정지)의 곡선 지수 p를 조절해서 목표 칸 중앙에 정확히 멈춤
+    let target = base; while (target < start + d1 + d2 + 0.5 * 2 * Math.PI) target += 2 * Math.PI;
+    const d3 = target - start - d1 - d2, v3 = 20 * R2, p = v3 * 5 / d3 - 1;
+    const dur = TOT * 1000;
+    const dist = t => { t = t / K;
+      if (t <= 5) return (200 * t - 10 * t * t) * R2;
+      if (t <= 10) { const s = t - 5; return d1 + (100 * s - 8 * s * s) * R2; }
+      const u = Math.min(1, (t - 10) / 5); return d1 + d2 + v3 * 5 / (p + 1) * (1 - Math.pow(1 - u, p + 1)); };
+    const speedAt = t => { t = t / K;
+      if (t <= 5) return (200 - 20 * t) * R2;
+      if (t <= 10) return (100 - 16 * (t - 5)) * R2;
+      return v3 * Math.pow(Math.max(0, 1 - (t - 10) / 5), p); };
     const cv = $('#rlCanvas'), t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
     let lastIdx = -1, lastSnd = 0;
     stage.classList.add('spinning');
