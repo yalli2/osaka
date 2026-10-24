@@ -497,24 +497,26 @@
     const jitter = (Math.random() - .5) * a * .7;
     const base = -((pick + .5) * a) + jitter, start = rl.rot;
     // 속도 곡선: 0~T1초는 최고 속도로 질주, 이후 T2초 동안 (1-u)^2 로 서서히 감속 → 합계 15초
-    const T1 = reduce ? .1 : 5, T2 = reduce ? .1 : 10, dur = (T1 + T2) * 1000;
-    const turns = 18 + Math.floor(Math.random() * 5);              // 총 18~22바퀴
+    const T1 = reduce ? .1 : 4, T2 = reduce ? .1 : 11;               // 4초 전속력 + 11초 감속 = 15초
+    const turns = reduce ? 3 : 48 + Math.floor(Math.random() * 8);  // 총 48~55바퀴 → 최고 약 5.5바퀴/초
     let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
-    const w0 = (target - start) / (T1 + T2 / 3);                    // 최고 각속도(rad/s)
-    const dist = t => t <= T1 ? w0 * t : w0 * T1 + w0 * T2 / 3 * (1 - Math.pow(1 - (t - T1) / T2, 3));
-    const t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
+    const w0 = (target - start) / (T1 + T2 / 4);                    // 최고 각속도(rad/s)
+    const dist = t => t <= T1 ? w0 * t : w0 * T1 + w0 * T2 / 4 * (1 - Math.pow(1 - (t - T1) / T2, 4)); // 속도 ∝ (1-u)^3 : 끝에서 오래 기어감
+    const speedAt = t => t <= T1 ? w0 : w0 * Math.pow(1 - (t - T1) / T2, 3);
+    const cv = $('#rlCanvas'), t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
     let lastIdx = -1, lastSnd = 0;
     stage.classList.add('spinning');
     const step = now => {
       const t = Math.min(dur / 1000, (now - t0) / 1000), f = t / (dur / 1000);
       rl.rot = start + dist(t); rlDraw();
+      cv.style.filter = reduce ? '' : `blur(${Math.min(2.5, speedAt(t) / (2 * Math.PI) * .45).toFixed(2)}px)`; // 빠를수록 흐릿
       const idx = Math.floor((((-rl.rot) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / a);
       if (idx !== lastIdx) {
         if (lastIdx !== -1 && !reduce) { ptr.classList.remove('tick'); void ptr.offsetWidth; ptr.classList.add('tick'); if (now - lastSnd > 45) { rlTick(f); lastSnd = now; } }
         lastIdx = idx;
       }
       if (t < dur / 1000) requestAnimationFrame(step);
-      else { rl.rot = target % (2 * Math.PI); stage.classList.remove('spinning'); rlDraw(); if (!reduce) rlDing(); rlDone(rl.list[pick]); }
+      else { rl.rot = target % (2 * Math.PI); stage.classList.remove('spinning'); cv.style.filter = ''; rlDraw(); if (!reduce) rlDing(); rlDone(rl.list[pick]); }
     };
     requestAnimationFrame(step);
   }
