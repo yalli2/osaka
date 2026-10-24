@@ -496,21 +496,22 @@
     // 포인터(맨 위)가 선택 칸의 중앙을 가리키도록: rot + (pick+.5)*a ≡ 0
     const jitter = (Math.random() - .5) * a * .7;
     const base = -((pick + .5) * a) + jitter, start = rl.rot;
-    // 속도(rpm): 0초 200 → 5초 100 → 10초 20 → 15초 정지 (구간 안에서는 직선으로 변화)
+    // 속도(rpm): 0초 V0 → 5초 V5 → 10초 V10 → 15초 정지. 마지막 구간은 직선 감속,
+    // 5~10초 구간의 곡선 지수 q만 조절해서 목표 칸 중앙에 정확히 멈춤
+    const V0 = 50, V5 = 25, V10 = 4;
     const R2 = 2 * Math.PI / 60, TOT = reduce ? .2 : 15, K = reduce ? .2 / 15 : 1;
-    const d1 = (200 + 100) / 2 * R2 * 5, d2 = (100 + 20) / 2 * R2 * 5; // 앞 두 구간 이동각(rad)
-    // 마지막 구간(20rpm→정지)의 곡선 지수 p를 조절해서 목표 칸 중앙에 정확히 멈춤
-    let target = base; while (target < start + d1 + d2 + 0.5 * 2 * Math.PI) target += 2 * Math.PI;
-    const d3 = target - start - d1 - d2, v3 = 20 * R2, p = v3 * 5 / d3 - 1;
+    const d1 = (V0 + V5) / 2 * R2 * 5, d3 = V10 / 2 * R2 * 5;
+    let target = base; while (target < start + d1 + d3 + 0.6 * 2 * Math.PI) target += 2 * Math.PI;
+    const d2 = target - start - d1 - d3, avg2 = d2 / (R2 * 5), q = (V5 - V10) / (avg2 - V10) - 1;
     const dur = TOT * 1000;
     const dist = t => { t = t / K;
-      if (t <= 5) return (200 * t - 10 * t * t) * R2;
-      if (t <= 10) { const s = t - 5; return d1 + (100 * s - 8 * s * s) * R2; }
-      const u = Math.min(1, (t - 10) / 5); return d1 + d2 + v3 * 5 / (p + 1) * (1 - Math.pow(1 - u, p + 1)); };
+      if (t <= 5) return (V0 * t + (V5 - V0) / 10 * t * t) * R2;
+      if (t <= 10) { const u = (t - 5) / 5; return d1 + R2 * 5 * (V10 * u + (V5 - V10) / (q + 1) * (1 - Math.pow(1 - u, q + 1))); }
+      const s = Math.min(5, t - 10); return d1 + d2 + (V10 * s - V10 / 10 * s * s) * R2; };
     const speedAt = t => { t = t / K;
-      if (t <= 5) return (200 - 20 * t) * R2;
-      if (t <= 10) return (100 - 16 * (t - 5)) * R2;
-      return v3 * Math.pow(Math.max(0, 1 - (t - 10) / 5), p); };
+      if (t <= 5) return (V0 + (V5 - V0) / 5 * t) * R2;
+      if (t <= 10) return (V10 + (V5 - V10) * Math.pow(1 - (t - 5) / 5, q)) * R2;
+      return V10 * Math.max(0, 1 - (t - 10) / 5) * R2; };
     const cv = $('#rlCanvas'), t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
     let lastIdx = -1, lastSnd = 0;
     stage.classList.add('spinning');
