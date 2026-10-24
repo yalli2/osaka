@@ -498,7 +498,7 @@
     const base = -((pick + .5) * a) + jitter, start = rl.rot;
     // 속도 곡선: 0~T1초는 최고 속도로 질주, 이후 T2초 동안 (1-u)^2 로 서서히 감속 → 합계 15초
     const T1 = reduce ? .1 : 4, T2 = reduce ? .1 : 11;               // 4초 전속력 + 11초 감속 = 15초
-    const turns = reduce ? 3 : 48 + Math.floor(Math.random() * 8);  // 총 48~55바퀴 → 최고 약 5.5바퀴/초
+    const turns = reduce ? 3 : 24 + Math.floor(Math.random() * 4);  // 총 24~27바퀴 → 최고 약 2.7바퀴/초 (이전의 0.5배)
     let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
     const w0 = (target - start) / (T1 + T2 / 4);                    // 최고 각속도(rad/s)
     const dist = t => t <= T1 ? w0 * t : w0 * T1 + w0 * T2 / 4 * (1 - Math.pow(1 - (t - T1) / T2, 4)); // 속도 ∝ (1-u)^3 : 끝에서 오래 기어감
