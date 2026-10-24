@@ -502,6 +502,7 @@
     let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
     const w0 = (target - start) / (T1 + T2 / 4);                    // 최고 각속도(rad/s)
     const dist = t => t <= T1 ? w0 * t : w0 * T1 + w0 * T2 / 4 * (1 - Math.pow(1 - (t - T1) / T2, 4)); // 속도 ∝ (1-u)^3 : 끝에서 오래 기어감
+    const dur = (T1 + T2) * 1000;
     const speedAt = t => t <= T1 ? w0 : w0 * Math.pow(1 - (t - T1) / T2, 3);
     const cv = $('#rlCanvas'), t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
     let lastIdx = -1, lastSnd = 0;
