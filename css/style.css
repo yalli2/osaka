@@ -210,3 +210,6 @@ button,input,select{font:inherit;color:inherit}
 .rl-pointer{transform-origin:50% 0}
 .rl-pointer.tick{animation:rltick .12s ease-out}
 @keyframes rltick{0%{transform:translateX(-50%) rotate(-16deg)}100%{transform:translateX(-50%) rotate(0)}}
+.rl-stage.spinning canvas{box-shadow:0 0 0 4px rgba(229,23,31,.18),0 0 40px rgba(229,23,31,.35)}
+.rl-stage canvas{transition:box-shadow .4s}
+.rl-hub:disabled{opacity:.9}

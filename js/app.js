@@ -466,34 +466,55 @@
     rlRefresh();
   }
   let actx = null;
-  function rlTick(ptr, f) {
-    ptr.classList.remove('tick'); void ptr.offsetWidth; ptr.classList.add('tick');
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      const o = actx.createOscillator(), g = actx.createGain();
-      o.type = 'square'; o.frequency.value = 520 + 300 * f; g.gain.value = .04;
-      g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + .06);
-      o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + .07);
-    } catch (e) {}
+  function rlAudio() {
+    try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {}
+    return actx;
   }
+  function rlTick(f) {
+    const c = rlAudio(); if (!c) return;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = 'triangle'; o.frequency.value = 700 + 500 * f; g.gain.setValueAtTime(.05, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .05);
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .06);
+  }
+  function bell(freq, at, len, vol) {
+    const c = actx; if (!c) return;
+    [[1, 1], [2.01, .35], [3.02, .15]].forEach(([m, v]) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine'; o.frequency.value = freq * m;
+      g.gain.setValueAtTime(0.0001, c.currentTime + at);
+      g.gain.exponentialRampToValueAtTime(vol * v, c.currentTime + at + .01);
+      g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + at + len);
+      o.connect(g); g.connect(c.destination); o.start(c.currentTime + at); o.stop(c.currentTime + at + len + .05);
+    });
+  }
+  function rlDing() { if (!rlAudio()) return; bell(988, 0, 1.1, .22); bell(740, .45, 1.6, .22); } // 띵~ 동~
   function rlSpin() {
     if (rl.spinning || rl.list.length < 2) return;
-    rl.spinning = true; $('#rlSpin').disabled = true;
+    rl.spinning = true; $('#rlSpin').disabled = true; rlAudio(); // 소리는 클릭 직후에 켜야 재생됨
     const n = rl.list.length, a = 2 * Math.PI / n, pick = Math.floor(Math.random() * n);
     // 포인터(맨 위)가 선택 칸의 중앙을 가리키도록: rot + (pick+.5)*a ≡ 0
     const jitter = (Math.random() - .5) * a * .7;
-    const base = -((pick + .5) * a) + jitter, start = rl.rot, turns = 9 + Math.floor(Math.random() * 5);
+    const base = -((pick + .5) * a) + jitter, start = rl.rot;
+    // 속도 곡선: 0~T1초는 최고 속도로 질주, 이후 T2초 동안 (1-u)^2 로 서서히 감속 → 합계 15초
+    const T1 = reduce ? .1 : 5, T2 = reduce ? .1 : 10, dur = (T1 + T2) * 1000;
+    const turns = 18 + Math.floor(Math.random() * 5);              // 총 18~22바퀴
     let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
-    const dur = reduce ? 1 : 6000 + Math.random() * 3500, t0 = performance.now(); // 6~9.5초
-    const ptr = $('.rl-pointer'); let lastIdx = -1;
-    const ease = f => 1 - Math.pow(1 - f, 5); // 처음엔 아주 빠르고 끝으로 갈수록 느려짐
+    const w0 = (target - start) / (T1 + T2 / 3);                    // 최고 각속도(rad/s)
+    const dist = t => t <= T1 ? w0 * t : w0 * T1 + w0 * T2 / 3 * (1 - Math.pow(1 - (t - T1) / T2, 3));
+    const t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
+    let lastIdx = -1, lastSnd = 0;
+    stage.classList.add('spinning');
     const step = now => {
-      const f = Math.min(1, (now - t0) / dur), e = ease(f);
-      rl.rot = start + (target - start) * e; rlDraw();
-      // 화살표가 칸 경계를 지날 때마다 딸깍 (소리+흔들림). 느려질수록 간격이 벌어져 긴장감이 커짐
+      const t = Math.min(dur / 1000, (now - t0) / 1000), f = t / (dur / 1000);
+      rl.rot = start + dist(t); rlDraw();
       const idx = Math.floor((((-rl.rot) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / a);
-      if (idx !== lastIdx) { if (lastIdx !== -1 && !reduce) rlTick(ptr, f); lastIdx = idx; }
-      if (f < 1) requestAnimationFrame(step); else { rl.rot = target % (2 * Math.PI); rlDone(rl.list[pick]); }
+      if (idx !== lastIdx) {
+        if (lastIdx !== -1 && !reduce) { ptr.classList.remove('tick'); void ptr.offsetWidth; ptr.classList.add('tick'); if (now - lastSnd > 45) { rlTick(f); lastSnd = now; } }
+        lastIdx = idx;
+      }
+      if (t < dur / 1000) requestAnimationFrame(step);
+      else { rl.rot = target % (2 * Math.PI); stage.classList.remove('spinning'); rlDraw(); if (!reduce) rlDing(); rlDone(rl.list[pick]); }
     };
     requestAnimationFrame(step);
   }
