@@ -465,18 +465,34 @@
     });
     rlRefresh();
   }
+  let actx = null;
+  function rlTick(ptr, f) {
+    ptr.classList.remove('tick'); void ptr.offsetWidth; ptr.classList.add('tick');
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'square'; o.frequency.value = 520 + 300 * f; g.gain.value = .04;
+      g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + .06);
+      o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + .07);
+    } catch (e) {}
+  }
   function rlSpin() {
     if (rl.spinning || rl.list.length < 2) return;
     rl.spinning = true; $('#rlSpin').disabled = true;
     const n = rl.list.length, a = 2 * Math.PI / n, pick = Math.floor(Math.random() * n);
     // 포인터(맨 위)가 선택 칸의 중앙을 가리키도록: rot + (pick+.5)*a ≡ 0
     const jitter = (Math.random() - .5) * a * .7;
-    const base = -((pick + .5) * a) + jitter, start = rl.rot, turns = 5 + Math.floor(Math.random() * 3);
+    const base = -((pick + .5) * a) + jitter, start = rl.rot, turns = 9 + Math.floor(Math.random() * 5);
     let target = base; while (target < start + turns * 2 * Math.PI) target += 2 * Math.PI;
-    const dur = reduce ? 1 : 4200, t0 = performance.now();
+    const dur = reduce ? 1 : 6000 + Math.random() * 3500, t0 = performance.now(); // 6~9.5초
+    const ptr = $('.rl-pointer'); let lastIdx = -1;
+    const ease = f => 1 - Math.pow(1 - f, 5); // 처음엔 아주 빠르고 끝으로 갈수록 느려짐
     const step = now => {
-      const f = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - f, 4);
+      const f = Math.min(1, (now - t0) / dur), e = ease(f);
       rl.rot = start + (target - start) * e; rlDraw();
+      // 화살표가 칸 경계를 지날 때마다 딸깍 (소리+흔들림). 느려질수록 간격이 벌어져 긴장감이 커짐
+      const idx = Math.floor((((-rl.rot) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / a);
+      if (idx !== lastIdx) { if (lastIdx !== -1 && !reduce) rlTick(ptr, f); lastIdx = idx; }
       if (f < 1) requestAnimationFrame(step); else { rl.rot = target % (2 * Math.PI); rlDone(rl.list[pick]); }
     };
     requestAnimationFrame(step);

@@ -207,3 +207,6 @@ button,input,select{font:inherit;color:inherit}
 .rl-result .chips{margin:8px 0}
 .rl-result .rl-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 @media(max-width:760px){.rl{grid-template-columns:1fr}.rl-stage{margin:0 auto;max-width:360px}.rl-hub{width:76px;height:76px;font-size:16px}}
+.rl-pointer{transform-origin:50% 0}
+.rl-pointer.tick{animation:rltick .12s ease-out}
+@keyframes rltick{0%{transform:translateX(-50%) rotate(-16deg)}100%{transform:translateX(-50%) rotate(0)}}
