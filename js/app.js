@@ -496,22 +496,23 @@
     // 포인터(맨 위)가 선택 칸의 중앙을 가리키도록: rot + (pick+.5)*a ≡ 0
     const jitter = (Math.random() - .5) * a * .7;
     const base = -((pick + .5) * a) + jitter, start = rl.rot;
-    // 속도(rpm): 0초 V0 → 5초 V5 → 10초 V10 → 15초 정지. 마지막 구간은 직선 감속,
-    // 5~10초 구간의 곡선 지수 q만 조절해서 목표 칸 중앙에 정확히 멈춤
-    const V0 = 50, V5 = 25, V10 = 4;
-    const R2 = 2 * Math.PI / 60, TOT = reduce ? .2 : 15, K = reduce ? .2 / 15 : 1;
-    const d1 = (V0 + V5) / 2 * R2 * 5, d3 = V10 / 2 * R2 * 5;
-    let target = base; while (target < start + d1 + d3 + 0.6 * 2 * Math.PI) target += 2 * Math.PI;
-    const d2 = target - start - d1 - d3, avg2 = d2 / (R2 * 5), q = (V5 - V10) / (avg2 - V10) - 1;
-    const dur = TOT * 1000;
+    // 속도(rpm): 0초 V0 → 3초 Va → 5초 Vb → 10초 정지. 마지막 구간은 직선 감속,
+    // 3~5초 구간의 곡선 지수 q만 조절해서 목표 칸 중앙에 정확히 멈춤
+    const V0 = 100, Va = 50, Vb = 15, TA = 3, TB = 2, TC = 5, T = TA + TB + TC;
+    const R2 = 2 * Math.PI / 60, K = reduce ? .2 / T : 1;
+    const d1 = (V0 + Va) / 2 * R2 * TA, d3 = Vb / 2 * R2 * TC;
+    const dmin = (Vb + .1 * (Va - Vb)) * R2 * TB;
+    let target = base; while (target < start + d1 + d3 + dmin) target += 2 * Math.PI;
+    const d2 = target - start - d1 - d3, avg2 = d2 / (R2 * TB), q = (Va - Vb) / (avg2 - Vb) - 1;
+    const dur = T * K * 1000;
     const dist = t => { t = t / K;
-      if (t <= 5) return (V0 * t + (V5 - V0) / 10 * t * t) * R2;
-      if (t <= 10) { const u = (t - 5) / 5; return d1 + R2 * 5 * (V10 * u + (V5 - V10) / (q + 1) * (1 - Math.pow(1 - u, q + 1))); }
-      const s = Math.min(5, t - 10); return d1 + d2 + (V10 * s - V10 / 10 * s * s) * R2; };
+      if (t <= TA) return (V0 * t + (Va - V0) / (2 * TA) * t * t) * R2;
+      if (t <= TA + TB) { const u = (t - TA) / TB; return d1 + R2 * TB * (Vb * u + (Va - Vb) / (q + 1) * (1 - Math.pow(1 - u, q + 1))); }
+      const s = Math.min(TC, t - TA - TB); return d1 + d2 + (Vb * s - Vb / (2 * TC) * s * s) * R2; };
     const speedAt = t => { t = t / K;
-      if (t <= 5) return (V0 + (V5 - V0) / 5 * t) * R2;
-      if (t <= 10) return (V10 + (V5 - V10) * Math.pow(1 - (t - 5) / 5, q)) * R2;
-      return V10 * Math.max(0, 1 - (t - 10) / 5) * R2; };
+      if (t <= TA) return (V0 + (Va - V0) / TA * t) * R2;
+      if (t <= TA + TB) return (Vb + (Va - Vb) * Math.pow(1 - (t - TA) / TB, q)) * R2;
+      return Vb * Math.max(0, 1 - (t - TA - TB) / TC) * R2; };
     const cv = $('#rlCanvas'), t0 = performance.now(), stage = $('.rl-stage'), ptr = $('.rl-pointer');
     let lastIdx = -1, lastSnd = 0;
     stage.classList.add('spinning');
