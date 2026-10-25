@@ -4,60 +4,65 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>오사카·교토 4박 5일 가족여행</title>
-<meta name="description" content="난바역 기준 오사카·교토 가족여행 가이드: 테마별 명소, 요금, 경로 애니메이션, 일자별 코스, 교토 일일투어 추천">
+<meta name="description" content="난바역 기준 오사카·교토 가족여행 가이드">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="css/style.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
 
 <header class="bar" id="top">
-  <a class="bar-brand" href="#top" aria-label="맨 위로"><span class="sign">M20</span><span>난바 출발</span></a>
-  <nav class="bar-nav" aria-label="섹션">
-    <a href="#explore">명소</a>
-    <a href="#route">길찾기</a>
-    <a href="#days">일자별 코스</a>
-    <a href="#tour">교토 투어</a>
-    <a href="#info">정보</a>
-    <a href="#roulette">룰렛</a>
+  <a class="bar-brand" href="#top" data-i18n-aria="aria_top"><span class="sign">M20</span><span data-i18n="brand">난바 출발</span></a>
+  <nav class="bar-nav" data-i18n-aria="aria_sections">
+    <a href="#explore" data-i18n="nav_explore">명소</a>
+    <a href="#route" data-i18n="nav_route">길찾기</a>
+    <a href="#days" data-i18n="nav_days">일자별 코스</a>
+    <a href="#tour" data-i18n="nav_tour">교토 투어</a>
+    <a href="#info" data-i18n="nav_info">정보</a>
+    <a href="#roulette" data-i18n="nav_roulette">룰렛</a>
   </nav>
-  <div class="family" role="group" aria-label="가족 구성">
-    <label>성인 <input id="fa" type="number" min="1" max="9" value="2" inputmode="numeric"></label>
-    <label>어린이 <input id="fk" type="number" min="0" max="9" value="2" inputmode="numeric"></label>
+  <div class="bar-tools">
+    <label class="lang" title="Language"><span aria-hidden="true">🌐</span>
+      <select id="lang" aria-label="Language / 언어"></select>
+    </label>
+    <div class="family" role="group" data-i18n-aria="aria_family">
+      <label><span data-i18n="adults">성인</span> <input id="fa" type="number" min="1" max="9" value="2" inputmode="numeric"></label>
+      <label><span data-i18n="kids">어린이</span> <input id="fk" type="number" min="0" max="9" value="2" inputmode="numeric"></label>
+    </div>
   </div>
 </header>
 
 <main>
   <section class="hero">
     <div class="hero-text">
-      <p class="hero-date">2026.10.29 – 11.2 · 4박 5일 · 가족 여행</p>
-      <h1>난바역에서<br>오사카와 교토로</h1>
-      <p class="hero-sub">『리얼 오사카』에서 고른 명소를 테마별로 정리하고, 요금·교통·일일투어를 웹에서 확인해 한 곳에 모았습니다. 목적지를 고르면 지금 위치에서 가는 길이 지도 위에서 움직입니다.</p>
+      <p class="hero-date" data-i18n="hero_date">2026.10.29 – 11.2 · 4박 5일 · 가족 여행</p>
+      <h1 data-i18n="hero_h1">난바역에서<br>오사카와 교토로</h1>
+      <p class="hero-sub" data-i18n="hero_sub"></p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#route">길찾기 애니메이션 보기</a>
-        <a class="btn" href="#days">일자별 코스 보기</a>
+        <a class="btn btn-primary" href="#route" data-i18n="cta_route">길찾기 애니메이션 보기</a>
+        <a class="btn" href="#days" data-i18n="cta_days">일자별 코스 보기</a>
       </div>
     </div>
-    <ol class="rail" aria-label="여행 일정">
+    <ol class="rail" data-i18n-aria="aria_rail">
       <li class="rail-train" aria-hidden="true">🚇</li>
-      <li style="--c:#E5171F"><b>10/29 목</b><span>도착 · 미나미</span></li>
-      <li style="--c:#7B2B26"><b>10/30 금</b><span>교토 일일투어</span></li>
-      <li style="--c:#522886"><b>10/31 토</b><span>오사카성 · 우메다</span></li>
-      <li style="--c:#019A66"><b>11/1 일</b><span>베이 에어리어</span></li>
-      <li style="--c:#814721"><b>11/2 월</b><span>신세카이 · 출국</span></li>
+      <li style="--c:#E5171F"><b data-i18n="r1b"></b><span data-i18n="r1s"></span></li>
+      <li style="--c:#7B2B26"><b data-i18n="r2b"></b><span data-i18n="r2s"></span></li>
+      <li style="--c:#522886"><b data-i18n="r3b"></b><span data-i18n="r3s"></span></li>
+      <li style="--c:#019A66"><b data-i18n="r4b"></b><span data-i18n="r4s"></span></li>
+      <li style="--c:#814721"><b data-i18n="r5b"></b><span data-i18n="r5s"></span></li>
     </ol>
   </section>
 
   <!-- 테마별 명소 -->
   <section class="sec" id="explore">
     <div class="sec-head">
-      <h2>테마별 명소와 요금</h2>
-      <p>난바역에서 걸리는 시간과 대략의 교통비를 장소마다 계산해 두었습니다. 성인·어린이 인원은 오른쪽 위에서 바꿀 수 있습니다.</p>
+      <h2 data-i18n="explore_h"></h2>
+      <p data-i18n="explore_p"></p>
     </div>
     <div class="filters">
-      <div class="tabs" id="themeTabs" role="tablist" aria-label="테마"></div>
-      <div class="tabs tabs-sm" id="cityTabs" aria-label="도시"></div>
-      <input id="q" class="search" type="search" placeholder="장소 이름 검색" aria-label="장소 검색">
+      <div class="tabs" id="themeTabs" role="tablist" data-i18n-aria="aria_theme"></div>
+      <div class="tabs tabs-sm" id="cityTabs" data-i18n-aria="aria_city"></div>
+      <input id="q" class="search" type="search" data-i18n-ph="search_ph" data-i18n-aria="search_ph">
     </div>
     <p class="count" id="count" aria-live="polite"></p>
     <div class="spots" id="spots"></div>
@@ -66,21 +71,21 @@
   <!-- 룰렛 -->
   <section class="sec" id="roulette">
     <div class="sec-head">
-      <h2>갈 곳이 안 정해졌다면 룰렛</h2>
-      <p>조건을 고르고 돌리면 한 곳이 뽑힙니다. 마음에 안 들면 다시 돌리거나, 뽑힌 곳을 빼고 돌릴 수 있습니다.</p>
+      <h2 data-i18n="rl_h"></h2>
+      <p data-i18n="rl_p"></p>
     </div>
     <div class="rl">
       <div class="rl-stage">
         <div class="rl-pointer" aria-hidden="true"></div>
-        <canvas id="rlCanvas" width="640" height="640" aria-label="룰렛 판"></canvas>
-        <button class="rl-hub" id="rlSpin" type="button">돌리기</button>
+        <canvas id="rlCanvas" width="640" height="640" data-i18n-aria="rl_aria"></canvas>
+        <button class="rl-hub" id="rlSpin" type="button" data-i18n="rl_spin"></button>
       </div>
       <div class="rl-side">
-        <div class="tabs" id="rlTheme" aria-label="룰렛 테마"></div>
-        <div class="tabs tabs-sm" id="rlCity" aria-label="룰렛 도시"></div>
-        <label class="rl-check"><input type="checkbox" id="rlFree"> 입장 무료·저렴한 곳만(성인 1,000엔 이하)</label>
+        <div class="tabs" id="rlTheme" data-i18n-aria="aria_theme"></div>
+        <div class="tabs tabs-sm" id="rlCity" data-i18n-aria="aria_city"></div>
+        <label class="rl-check"><input type="checkbox" id="rlFree"> <span data-i18n="rl_free"></span></label>
         <p class="note" id="rlCount"></p>
-        <div class="rl-result" id="rlResult" aria-live="polite"><p class="note">아직 돌리지 않았습니다.</p></div>
+        <div class="rl-result" id="rlResult" aria-live="polite"></div>
       </div>
     </div>
   </section>
@@ -88,68 +93,74 @@
   <!-- 길찾기 애니메이션 -->
   <section class="sec sec-map" id="route">
     <div class="sec-head">
-      <h2>길찾기 애니메이션</h2>
-      <p>출발지와 목적지를 고르면 환승 경로가 지도 위에서 재생됩니다. 간이 경로 계산이라 시간·요금은 대략치이며, 정확한 값은 Google 지도 버튼으로 확인하세요.</p>
+      <h2 data-i18n="route_h"></h2>
+      <p data-i18n="route_p"></p>
     </div>
     <div class="route">
       <div class="route-panel">
-        <label class="fld">출발지
+        <label class="fld"><span data-i18n="lbl_origin"></span>
           <select id="origin"></select>
         </label>
-        <label class="fld">목적지
+        <label class="fld"><span data-i18n="lbl_dest"></span>
           <select id="dest"></select>
         </label>
         <div class="route-actions">
-          <button class="btn btn-primary" id="goBtn" type="button">경로 보기</button>
-          <a class="btn" id="gmapBtn" target="_blank" rel="noopener">Google 지도에서 열기</a>
+          <button class="btn btn-primary" id="goBtn" type="button" data-i18n="btn_go"></button>
+          <a class="btn" id="gmapBtn" target="_blank" rel="noopener" data-i18n="btn_gmap"></a>
         </div>
         <p class="note" id="originMsg" role="status"></p>
         <div class="player" id="player" hidden>
-          <button class="icon-btn" id="playBtn" type="button" aria-label="재생/일시정지">⏸</button>
-          <button class="icon-btn" id="replayBtn" type="button" aria-label="처음부터">↺</button>
-          <input id="seek" type="range" min="0" max="1000" value="0" aria-label="진행 위치">
-          <select id="speed" aria-label="재생 속도"><option value="0.5">0.5배</option><option value="1" selected>1배</option><option value="2">2배</option></select>
+          <button class="icon-btn" id="playBtn" type="button" data-i18n-aria="aria_play">⏸</button>
+          <button class="icon-btn" id="replayBtn" type="button" data-i18n-aria="aria_replay">↺</button>
+          <input id="seek" type="range" min="0" max="1000" value="0" data-i18n-aria="aria_seek">
+          <select id="speed" data-i18n-aria="aria_speed"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select>
         </div>
         <div class="summary" id="summary" aria-live="polite"></div>
         <ol class="steps" id="steps"></ol>
       </div>
-      <div class="map-wrap"><div id="map" role="application" aria-label="경로 지도"></div></div>
+      <div class="map-wrap"><div id="map" role="application" data-i18n-aria="aria_map"></div></div>
     </div>
   </section>
 
   <!-- 일자별 코스 -->
   <section class="sec" id="days">
     <div class="sec-head">
-      <h2>일자별 추천 코스</h2>
-      <p>10/29, 10/31, 11/1, 11/2 네 날의 동선과 우천 대체 코스를 장소가 겹치지 않게 짰습니다. 시간표와 이동 구간은 난바역 출발 기준입니다. 10/30은 교토 일일투어 날입니다.</p>
+      <h2 data-i18n="days_h"></h2>
+      <p data-i18n="days_p"></p>
     </div>
-    <div class="tabs" id="dayTabs" role="tablist" aria-label="일자"></div>
+    <div class="tabs" id="dayTabs" role="tablist" data-i18n-aria="aria_days"></div>
     <div id="dayPanel"></div>
   </section>
 
   <!-- 교토 투어 -->
   <section class="sec" id="tour">
     <div class="sec-head">
-      <h2>10/30 오사카 → 교토 일일투어</h2>
-      <p>웹에서 오사카 출발 교토 일일투어를 검색해 4인 가족에게 맞는 순서로 추렸습니다. 가격은 2026-10-23 조회 기준이며 날짜별로 달라질 수 있습니다.</p>
+      <h2 data-i18n="tour_h"></h2>
+      <p data-i18n="tour_p"></p>
     </div>
     <div id="tourPanel"></div>
   </section>
 
   <!-- 정보 -->
   <section class="sec" id="info">
-    <div class="sec-head"><h2>알아두면 좋은 것</h2></div>
+    <div class="sec-head"><h2 data-i18n="info_h"></h2></div>
     <div id="infoPanel"></div>
   </section>
 </main>
 
 <footer class="foot">
-  <p>자료: 『리얼 오사카 (교토·고베·나라)』 한빛라이프, 웹 조사 2026-10-23. 요금·운영 시간은 바뀔 수 있으니 방문 전 공식 안내를 확인하세요.</p>
+  <p data-i18n="foot"></p>
 </footer>
 
 <script src="vendor/leaflet/leaflet.js"></script>
-<script src="js/data.js?v=8"></script>
-<script src="js/router.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/data.js?v=9"></script>
+<script src="js/i18n.js?v=9"></script>
+<script src="js/lang/ko.js?v=9"></script>
+<script src="js/lang/en.js?v=9"></script>
+<script src="js/lang/ja.js?v=9"></script>
+<script src="js/lang/zh.js?v=9"></script>
+<script src="js/lang/es.js?v=9"></script>
+<script src="js/router.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
 </body>
 </html>

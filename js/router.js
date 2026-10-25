@@ -118,22 +118,22 @@ window.Router = (function () {
     if (direct < 1.1 || !best) {
       if (direct >= 1.1 && !best) { out.outOfArea = true; }
       const m = walkMin(direct);
-      out.steps = [{ type: 'walk', label: '도보', min: m, pts: [[origin.lat, origin.lng], [spot.lat, spot.lng]], from: '출발지', to: spot.name }];
+      out.steps = [{ type: 'walk', label: t('walk'), min: m, pts: [[origin.lat, origin.lng], [spot.lat, spot.lng]], from: t('origin_lbl'), to: L10N.sp(spot, 'name') }];
       out.minutes = m; out.walkOnly = true;
       return out;
     }
     const steps = [];
     const os = ST[best.o.id];
-    if (best.ow >= 1) steps.push({ type: 'walk', label: '도보', min: best.ow, from: '출발지', to: os[0], pts: [[origin.lat, origin.lng], [os[1], os[2]]] });
+    if (best.ow >= 1) steps.push({ type: 'walk', label: t('walk'), min: best.ow, from: t('origin_lbl'), to: L10N.st(best.o.id), pts: [[origin.lat, origin.lng], [os[1], os[2]]] });
     best.r.legs.forEach(l => {
       const L = l.line === 'W' ? null : LINES[l.line];
       const pts = l.stops.map(s => [ST[s][1], ST[s][2]]);
-      if (!L) steps.push({ type: 'walk', label: '환승 도보', min: l.min, from: ST[l.stops[0]][0], to: ST[l.stops[l.stops.length - 1]][0], pts });
-      else steps.push({ type: L.op === 'bus' ? 'bus' : 'ride', line: l.line, label: L.name, color: L.color, min: l.min,
-        from: ST[l.stops[0]][0], to: ST[l.stops[l.stops.length - 1]][0], n: l.stops.length - 1, pts });
+      if (!L) steps.push({ type: 'walk', label: t('walk_transfer'), min: l.min, from: L10N.st(l.stops[0]), to: L10N.st(l.stops[l.stops.length - 1]), pts });
+      else steps.push({ type: L.op === 'bus' ? 'bus' : 'ride', line: l.line, label: L10N.ln(l.line), color: L.color, min: l.min,
+        from: L10N.st(l.stops[0]), to: L10N.st(l.stops[l.stops.length - 1]), n: l.stops.length - 1, pts });
     });
     const ds = ST[best.did];
-    steps.push({ type: 'walk', label: '도보', min: best.dw, from: ds[0], to: spot.name, pts: [[ds[1], ds[2]], [spot.lat, spot.lng]] });
+    steps.push({ type: 'walk', label: t('walk'), min: best.dw, from: L10N.st(best.did), to: L10N.sp(spot, 'name'), pts: [[ds[1], ds[2]], [spot.lat, spot.lng]] });
     out.steps = steps;
     out.minutes = best.total;
     out.fare = estimateFare(best.r.legs);

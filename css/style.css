@@ -213,3 +213,8 @@ button,input,select{font:inherit;color:inherit}
 .rl-stage.spinning canvas{box-shadow:0 0 0 4px rgba(229,23,31,.18),0 0 40px rgba(229,23,31,.35)}
 .rl-stage canvas{transition:box-shadow .4s}
 .rl-hub:disabled{opacity:.9}
+/* 언어 선택 */
+.bar-tools{display:flex;align-items:center;gap:14px;margin-left:auto}
+.lang{display:flex;align-items:center;gap:6px;color:#fff}
+.lang select{background:#fff;color:var(--ink);border:1.5px solid #fff;border-radius:var(--r);padding:6px 8px;font-weight:600;max-width:130px}
+@media(max-width:760px){.bar-tools{flex-wrap:wrap;gap:8px}}
